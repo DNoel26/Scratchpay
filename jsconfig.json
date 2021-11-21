@@ -1,0 +1,7 @@
+{
+    "compilerOptions": {
+        "module": "commonJS",
+        "target": "esnext"
+    },
+    "exclude": ["node_modules", ".history"]
+}

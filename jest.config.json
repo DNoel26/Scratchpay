@@ -1,0 +1,4 @@
+{
+    "verbose": true,
+    "testPathIgnorePatterns": [".history", "git_ignore"]
+}
