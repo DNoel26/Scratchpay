@@ -17,19 +17,19 @@ Note: We need only one endpoint to search for all clinics.
 
 ASSUMPTIONS:
 
-1   Property names were different for both endpoints, but values were similar /
+-   1) Property names were different for both endpoints, but values were similar /
     identical. I identified these as alias keys in the codebase and queries were
     designed to find both original and alias keys.
-2   Similarly to above, search by state code and state name were designed to be
+-   2) Similarly to above, search by state code and state name were designed to be
     queried interchangeably (npm package was used to assist here).
-3   The other possible option was to create a new array by combining and coercing all the 
+-   3) The other possible option was to create a new array by combining and coercing all the 
     dental and vet clinic objects to have the same property names, and then
     query those results. 
-4   Original and alias queries are not required to work simultaneously i.e.
+-   4) Original and alias queries are not required to work simultaneously i.e.
     name=foo&clinicName=bar or clinicName=baz&StateName=buzz is invalid 
     (Note: clinicName=baz&StateName=buzz now works with added checks but 
     same type queries such as name=foo&clinicName=bar still won't)
-5   Query params designed to ignore invalid query keys
+-   5) Query params designed to ignore invalid query keys
 
 NOTE:
 
