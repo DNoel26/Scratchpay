@@ -1,14 +1,18 @@
 /** @format */
 
-export const checkHasQueriedData = (query, data) => {
+export const checkHasQueriedData = (query, data, { aliasKeySets } = {}) => {
     return Object.keys(query).every((key) => {
+        const aliasKey = aliasKeySets ? getAliasKey(key, aliasKeySets) : null;
         if (typeof query[key] === 'object' && typeof data[key] === 'object') {
-            return checkHasQueriedData(
-                query[key],
-                data[key],
-            );
+            return checkHasQueriedData(query[key], data[key]);
         }
-        if (checkIsValidSubString(query[key], data[key])) {
+        if (typeof query[key] === 'object' && typeof data[aliasKey] === 'object') {
+            return checkHasQueriedData(query[key], data[aliasKey]);
+        }
+        if (
+            checkIsValidSubString(query[key], data[key]) ||
+            checkIsValidSubString(query[key], data[aliasKey])
+        ) {
             return true;
         }
 
@@ -24,10 +28,37 @@ export const checkIsValidSubString = (subStrVal, strVal) => {
         strVal.toLowerCase().trim().includes(subStrVal.toLowerCase().trim())
     );
 };
-const getFilteredAndUnfilteredQueryData = (query, data) => {
+/**
+ *
+ * @param {{}} query
+ * @param {[[string]]} aliasKeySets array of string arrays with original name
+ * and a single alias
+ * @returns
+ */
+export const getAliasKey = (key, aliasKeySets) => {
+    let aliasKey;
+
+    // searches alias key arrays for original key names
+    // if found, returns the alias for that key
+    aliasKeySets.forEach((aliases) => {
+        if (aliases.includes(key)) {
+            aliases.forEach((alias) => {
+                if (key !== alias) {
+                    aliasKey = alias;
+                }
+            });
+        }
+    });
+    return aliasKey;
+};
+const getFilteredAndUnfilteredQueryData = (
+    query,
+    data,
+    { aliasKeySets } = {},
+) => {
     const queriedData = data.reduce(
         (acc, item) => {
-            if (checkHasQueriedData(query, item)) {
+            if (checkHasQueriedData(query, item, { aliasKeySets })) {
                 return (acc = {
                     ...acc,
                     filteredData: [...acc.filteredData, item],

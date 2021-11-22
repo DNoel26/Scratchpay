@@ -8,7 +8,9 @@ import {
 } from '../utils/urls.js';
 import getDataFromUrls from '../services/clinics/query.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import getFilteredAndUnfilteredQueryData from '../services/clinics/filter.js';
+import getFilteredAndUnfilteredQueryData, {
+    getAliasKey,
+} from '../services/clinics/filter.js';
 
 export const getAllClinics = async (req, res) => {
     const { query } = req;
@@ -36,21 +38,12 @@ export const getAllClinics = async (req, res) => {
         ['stateName', 'stateCode'],
         ['availability', 'opening'],
     ];
-    const aliasQuery = {};
 
-    // creates an alias object for full search
-    // searches alias key arrays for query key names
-    // if found, attaches the alias to the other object
+    // create alias query obj
+    const aliasQuery = {};
     Object.keys(query).forEach((key) => {
-        aliasKeySets.forEach((aliases) => {
-            if (aliases.includes(key)) {
-                aliases.forEach((alias) => {
-                    if (key !== alias) {
-                        aliasQuery[alias] = query[key];
-                    }
-                });
-            }
-        });
+        const aliasKey = getAliasKey(key, aliasKeySets);
+        aliasQuery[aliasKey] = query[key];
     });
 
     // allows for searching stateName with stateCode
@@ -64,9 +57,13 @@ export const getAllClinics = async (req, res) => {
 
     let queriedClinics;
     if (Object.keys(query).length) {
-        const results = getFilteredAndUnfilteredQueryData(query, allClinics);
+        const results = getFilteredAndUnfilteredQueryData(query, allClinics, {
+            aliasKeySets,
+        });
 
-        // search remaining unfiltered array for possible matches with alias keys
+        // search remaining unfiltered array for possible matches with alias
+        // query; useful when both alias keys and alias values are different but
+        // still valid e.g. stateCode='KS' and stateName='Kansas'
         const aliasResults = getFilteredAndUnfilteredQueryData(
             aliasQuery,
             results.unfilteredData,
@@ -78,7 +75,7 @@ export const getAllClinics = async (req, res) => {
     }
     res.status(ApiResponse.ok_200.code).json({
         ...ApiResponse.ok_200,
-        query: {...req.query},
+        query: { ...req.query },
         clinics: queriedClinics || allClinics,
     });
 };
