@@ -15,6 +15,9 @@ Availability [ex: from:09:00, to:20:00]
 This is including search by multiple criteria in the same time like search by state and availability together.
 Note: We need only one endpoint to search for all clinics.
 
+DOCKER URL: https://hub.docker.com/r/dnoel26/scratchpay
+DOCKER PULL: docker pull dnoel26/scratchpay:latest
+
 ASSUMPTIONS:
 
 -   1) Property names were different for both endpoints, but values were similar /
